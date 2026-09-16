@@ -1,0 +1,4 @@
+https://github.com/mpiannucci/surfpy
+
+good example for swell calculations and surf 
+prediction models

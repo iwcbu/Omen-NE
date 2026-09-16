@@ -1,0 +1,48 @@
+folder for holding ETL pipeline
+
+source: ndbc.noaa.gov
+
+
+
+Station data:
+https://www.ndbc.noaa.gov/data/latest_obs/latest_obs.txt
+
+
+
+
+wave stations (from north to south)
+
+me
+
+    - 44007
+
+nh
+    - 44030
+    - 44098
+
+far out:
+    - 44137
+    - 44150
+    - 44011
+
+
+
+wind stations (from north to south)
+
+me
+    - 44032
+    - CASM1
+    - 44007
+    - WEXM1
+    - 44030
+    - SEIM1
+
+nh
+    - SEIM1
+    - BGXN3
+
+ma
+    - BGXN3
+    - CSIM3
+
+

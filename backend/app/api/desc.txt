@@ -1,0 +1,17 @@
+folder for http handling and dependencies
+
+routes -> HTTP handling
+|-- forecasts.py -> Handles forecast-related endpoints.
+                        * Returns current surf conditions, predicted conditions, surf scores,
+                        confidence values, and forecast windows for a selected spot.
+
+|-- spots.py     -> Handles surf spot endpoints
+                        * Returns available surf locations and spots specific info
+
+|-- reports.py   -> Handles user submitted reports
+                        * Accepts observed conditions stored as ground truth data
+                        that can later be used for model training and evaluation
+                        
+|-- health.py    -> health of backend
+
+dependencies.py  -> dependencies for api
