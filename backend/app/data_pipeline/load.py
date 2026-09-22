@@ -1,14 +1,11 @@
 # backend/app/data_pipeline/load.py
 
-from app.services import dbl
+
+from extract import extract_historical_noaa_data
+from transform import transform_historical_station_data
+from datetime import datetime, timezone, timedelta
 import pandas as pd
 
 
-# pseudocode
-def load_data_to_db(data: pd.DataFrame):
-
-    db = dbl.connect()
-    dbl.addToToday(data)
-    db.disconnect()
-
-
+def load_historical_dataset_data(transformed_data: pd.DataFrame):
+    pass

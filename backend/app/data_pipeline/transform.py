@@ -1,7 +1,17 @@
 # backend/app/data_pipeline/transform.py
 
-from extract import extract_noaa_data
+from extract import extract_noaa_data, extract_historical_noaa_data
+
 import pandas as pd
+from datetime import datetime, timedelta, timezone
+
+
+
+# =====================================================
+#
+#                  CURRENT DATA 
+#
+# =====================================================
 
 
 def transform_noaa_data(raw_data: str):
@@ -76,6 +86,90 @@ def transform_noaa_data(raw_data: str):
     return df
 
 
+# =====================================================
+#
+#                  HISTORICAL DATA 
+#
+# =====================================================
+
+
+
+def transform_historical_station_data(before_time: datetime, raw_data: str):
+
+    data = []
+    split_data = raw_data.split('\n')   
+
+    i = 2
+    while i < len(split_data):
+
+       
+
+        row = split_data[i]
+        row = row.split()
+
+        year = int(row.pop(0))
+        month = int(row.pop(0))
+        day = int(row.pop(0))
+        hour = int(row.pop(0))
+        minute = int(row.pop(0))
+
+
+        timestamp = datetime(year, month, day, hour, minute, tzinfo=timezone.utc)
+
+        if timestamp < before_time:
+            break
+
+        row.insert(0, timestamp)
+        row = row[:-3]
+
+        data.append(row)
+
+        i += 1
+
+    columns = [
+        'timestamp',
+
+        'wind_direction', 
+        'wind_speed', 
+        'gust', 
+
+        'avg_wave_height', 
+        'primary_wave_period', 
+        'avg_wave_period', 
+        'avg_wave_direction', 
+
+        'atmospheric_pressure',
+        'air_temp', 
+        'water_temp', 
+        'dewpoint',
+        
+    ]
+
+
+    df = pd.DataFrame(data, columns=columns)
+    df = df.replace("MM", pd.NA)
+    print(df)
+
+    return df
+
+
+
 if __name__ == "__main__":
+    print('transform_noaa_data(raw_data)')
     rd = extract_noaa_data()
     transform_noaa_data(rd)
+    print()
+
+
+if __name__ == "__main__":
+    print()
+    print(' transform_historical_station_data(min_ago, raw_data)')
+
+    time_now = datetime.now(timezone.utc)
+    tb = time_now - timedelta(minutes=40)
+    time_before = datetime(tb.year, tb.month, tb.day, tb.hour, tb.minute, tzinfo=timezone.utc)
+
+    rd = extract_historical_noaa_data('44007')
+    transform_historical_station_data(time_before, rd)
+
+    print()
