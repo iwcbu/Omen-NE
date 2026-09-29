@@ -1,6 +1,6 @@
 # backend/app/data_pipeline/transform.py
 
-from extract import extract_noaa_data, extract_historical_noaa_data
+from .extract import extract_noaa_data, extract_historical_noaa_data
 
 import pandas as pd
 from datetime import datetime, timedelta, timezone
@@ -94,7 +94,7 @@ def transform_noaa_data(raw_data: str):
 
 
 
-def transform_historical_station_data(before_time: datetime, raw_data: str):
+def transform_historical_station_data(irl_obs_id: int, before_time: datetime, raw_data: str):
 
     data = []
     split_data = raw_data.split('\n')   
@@ -120,6 +120,7 @@ def transform_historical_station_data(before_time: datetime, raw_data: str):
             break
 
         row.insert(0, timestamp)
+        row.insert(0, irl_obs_id)
         row = row[:-3]
 
         data.append(row)
@@ -127,6 +128,7 @@ def transform_historical_station_data(before_time: datetime, raw_data: str):
         i += 1
 
     columns = [
+        'irl_obs_id',
         'timestamp',
 
         'wind_direction', 
