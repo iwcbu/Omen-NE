@@ -1,38 +1,63 @@
 # backend/app/data_pipeline/load.py
 
 
-from .extract import extract_historical_noaa_data
-from .transform import transform_historical_station_data
+from data_pipeline.extract import extract_historical_noaa_data_from_year
+from data_pipeline.transform import transform_historical_station_data_from_year
 from datetime import datetime, timezone, timedelta
 import pandas as pd
 import pyarrow as pq
 from pathlib import Path
 
+class Source(object):
+    def __init__(self, company: str, device: str, year: int):
+        self.company = company
+        self.device = device
 
-def load_historical_dataset_data(transformed_data: pd.DataFrame):
-    now = datetime.now()
-    today = '_'.join([str(now.month), str(now.day), str(now.year)])
+        now = datetime.now()
+        if year < 1990 or year > now.year:
+            raise ValueError("Invalid year")
+        
+        self.year = year
+
+    def __str__(self):
+        return f"{self.company} {self.device} ~ {self.year}"
+
+    def __repr__(self):
+        return f"Source({self.company!r}, {self.device!r}, {self.year!r})"
+
+
+
+def load_historical_data_from_year(transformed_data: pd.DataFrame, source: Source):
+    '''Load processed historical data into its given company's device's directory.'''
+
     BASE_DIR = Path(__file__).resolve().parents[2]
-    datasets_dir = BASE_DIR / "data" / "datasets"
-    path = datasets_dir / f"surf_dataset_{today}.parquet"
+    
+    device_dir = BASE_DIR / "data" / "processed" / source.company / source.device
+    device_dir.mkdir(parents=True, exist_ok=True)
+
+    path = device_dir / f"{source.year}.parquet"
     
 
-    if path.exists():
-        prev = pd.read_parquet(path)
-        batch = pd.concat([prev, transformed_data], ignore_index=True)
-        batch = batch.drop_duplicates(subset=["irl_obs_id", "timestamp"])
-        batch.to_parquet(path)
-    else:
-        transformed_data.to_parquet(path)
+    transformed_data.to_parquet(path)
+    return path
 
     
 
 
 
 if __name__ == '__main__':
-    raw_data = extract_historical_noaa_data('44007')
+    s1 = Source('noaa', '44098', 2025)
+    s2 = Source('noaa', '44007', 2025)
 
-    rn = datetime.now(tz=timezone.utc)
-    before = rn - timedelta(hours=1)
-    transformed_data = transform_historical_station_data(irl_obs_id=1, before_time=before, raw_data=raw_data)
-    load_historical_dataset_data(transformed_data=transformed_data)
+    for s in [s1, s2]:
+        rd = extract_historical_noaa_data_from_year(s.device, s.year)
+        td = transform_historical_station_data_from_year(raw_data=rd)
+        path_to_parquet = load_historical_data_from_year(transformed_data=td, source=s)
+
+        data = pd.read_parquet(path_to_parquet)
+        print()
+        print(s.__str__())
+        print(path_to_parquet)
+        print()
+        print(data)
+        print()

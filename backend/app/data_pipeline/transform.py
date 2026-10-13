@@ -1,6 +1,6 @@
 # backend/app/data_pipeline/transform.py
 
-from .extract import extract_noaa_data, extract_historical_noaa_data
+from data_pipeline.extract import extract_noaa_data, extract_historical_noaa_data_from_year
 
 import pandas as pd
 from datetime import datetime, timedelta, timezone
@@ -94,7 +94,7 @@ def transform_noaa_data(raw_data: str):
 
 
 
-def transform_historical_station_data(irl_obs_id: int, before_time: datetime, raw_data: str):
+def transform_recent_historical_station_data(irl_obs_id: int, before_time: datetime, raw_data: str):
 
     data = []
     split_data = raw_data.split('\n')   
@@ -156,11 +156,95 @@ def transform_historical_station_data(irl_obs_id: int, before_time: datetime, ra
 
 
 
-if __name__ == "__main__":
-    print('transform_noaa_data(raw_data)')
-    rd = extract_noaa_data()
-    transform_noaa_data(rd)
-    print()
+
+
+
+
+def transform_historical_station_data_from_year(raw_data: str):
+    '''transforms raw data into structured dataframes'''
+
+    data = []
+    split_data = raw_data.split('\n')
+
+    for i in range(2, len(split_data)-1):
+        row = split_data[i]
+        row = row.split()
+
+        year = int(row.pop(0))
+        month = int(row.pop(0))
+        day = int(row.pop(0))
+        hour = int(row.pop(0))
+        minute = int(row.pop(0))
+
+        timestamp = datetime(year, month, day, hour, minute, tzinfo=timezone.utc)
+        row.insert(0, timestamp)
+        row = row[:-3]
+
+        data.append(row)
+
+        i += 1
+
+    columns = [
+        'timestamp',
+
+        'wind_direction', 
+        'wind_speed', 
+        'gust', 
+
+        'avg_wave_height', 
+        'primary_wave_period', 
+        'avg_wave_period', 
+        'avg_wave_direction', 
+
+        'atmospheric_pressure',
+        'air_temp', 
+        'water_temp'
+        
+    ]
+
+
+    df = pd.DataFrame(data, columns=columns)
+
+    df.attrs["units"] = {
+        "timestamp": "UTC",
+        "wind_direction": "degrees_true",
+        "wind_speed": "m/s",
+        "gust": "m/s",
+        "signicant_wave_height": "m",
+        "dominant_wave_period": "s",
+        "average_wave_period": "s",
+        "dominant_wave_direction_origin": "degrees_true",
+        "atmospheric_pressure": "hPa",
+        "air_temp": "°C",
+        "water_temp": "°C",
+    }
+
+
+    df = df.replace('99.0', pd.NA)
+    df = df.replace('99.00', pd.NA)
+    df = df.replace('999.0', pd.NA)
+    df = df.replace('999', pd.NA)
+    df = df.replace('9999', pd.NA)
+    df = df.replace('9999.0', pd.NA)
+
+    for col in columns:
+        if col == 'timestamp':
+            continue
+
+        df[col].astype(float)
+
+
+    return df
+
+
+
+# if __name__ == "__main__":
+#     print('transform_noaa_data(raw_data)')
+#     rd = extract_noaa_data()
+#     td = transform_noaa_data(rd)
+#     print(td)
+#     print()
+
 
 
 if __name__ == "__main__":
@@ -171,7 +255,7 @@ if __name__ == "__main__":
     tb = time_now - timedelta(minutes=40)
     time_before = datetime(tb.year, tb.month, tb.day, tb.hour, tb.minute, tzinfo=timezone.utc)
 
-    rd = extract_historical_noaa_data('44007')
-    transform_historical_station_data(time_before, rd)
-
+    rd = extract_historical_noaa_data_from_year('44007', 2025)
+    td = transform_historical_station_data_from_year(rd)
+    print(td)
     print()

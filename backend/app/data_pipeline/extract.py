@@ -19,8 +19,8 @@ def extract_noaa_data() -> str:
 station_ids = ['44013', '44098', '44030', 'WEXM1', '44007', '44150', '44011']
 
 
-def extract_historical_noaa_data(station: str) -> str:
-    url = "https://www.ndbc.noaa.gov/data/realtime2/" + station + ".txt"
+def extract_historical_noaa_data_from_year(station: str, year: int) -> str:
+    url = "https://www.ndbc.noaa.gov/view_text_file.php?filename=" + station + "h" + str(year) + ".txt.gz&dir=data/historical/stdmet/"
 
     if station not in station_ids:
         raise ValueError("station id irrelevant for north east predictions")
@@ -28,7 +28,8 @@ def extract_historical_noaa_data(station: str) -> str:
     res = requests.get(url)
     data = res.text
 
+
     return data
 
 if __name__ == "__main__":
-    extract_historical_noaa_data('44007')
+    extract_historical_noaa_data_from_year('44007', 2025)
