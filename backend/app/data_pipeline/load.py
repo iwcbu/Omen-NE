@@ -7,28 +7,20 @@ from datetime import datetime, timezone, timedelta
 import pandas as pd
 import pyarrow as pq
 from pathlib import Path
-
-class Source(object):
-    def __init__(self, company: str, device: str, year: int):
-        self.company = company
-        self.device = device
-
-        now = datetime.now()
-        if year < 1990 or year > now.year:
-            raise ValueError("Invalid year")
-        
-        self.year = year
-
-    def __str__(self):
-        return f"{self.company} {self.device} ~ {self.year}"
-
-    def __repr__(self):
-        return f"Source({self.company!r}, {self.device!r}, {self.year!r})"
-
+from data_pipeline.models import Source
 
 
 def load_historical_data_from_year(transformed_data: pd.DataFrame, source: Source):
-    '''Load processed historical data into its given company's device's directory.'''
+    '''
+    loads processed historical data into its given company's device's directory as a parquet.
+
+    param:
+        transformed_data: dataframe of processed NOAA data
+        source: an object with the company and device that recorded these observations and the year they are from
+    returns:
+        path of where the parquet made was created / overwritten
+    
+    '''
 
     BASE_DIR = Path(__file__).resolve().parents[2]
     

@@ -49,24 +49,21 @@ def transform_noaa_data(raw_data: str):
         data.append(row)
 
     columns = [
-        'id', 
-        'latitude', 
-        'longitude', 
-        'timestamp',
+        "timestamp",
 
-        'wind_direction', 
-        'wind_speed', 
-        'gust', 
+        "wind_direction",
+        "wind_speed",
+        "gust",
 
-        'avg_wave_height', 
-        'primary_wave_period', 
-        'avg_wave_period', 
-        'avg_wave_direction', 
-
-        'atmospheric_pressure',
-        'air_temp', 
-        'water_temp', 
-        'dewpoint'
+        "signicant_wave_height",
+        "dominant_wave_period",
+        "average_wave_period",
+        "dominant_wave_direction_origin",
+        
+        "atmospheric_pressure",
+        "air_temp",
+        "water_temp",
+        
     ]
 
     df = pd.DataFrame(data, columns=columns)
@@ -95,6 +92,27 @@ def transform_noaa_data(raw_data: str):
 
 
 def transform_recent_historical_station_data(irl_obs_id: int, before_time: datetime, raw_data: str):
+    '''
+        transforms raw NOAA observations before a certain time into structured dataframes, paired with an in person observation.
+        
+        params:  
+            irl_obs_id: foreign key to an in person observation
+            before_time: time restraint on the oldest observation wanted  
+            raw_data: raw text containing historical NOAA measurements from a specific year
+    
+        returns:
+            a dataframe containing normalized timestamps, foreign key to an in person observation,
+            numeric, measurements, and missing values represented as NaN
+    
+        raises:
+            ValueError: if the input data is empty or malformed
+        
+        '''
+
+    
+    if raw_data == "" or raw_data.strip() == "":
+        raise ValueError("Input data is empty or malformed")
+
 
     data = []
     split_data = raw_data.split('\n')   
@@ -128,22 +146,20 @@ def transform_recent_historical_station_data(irl_obs_id: int, before_time: datet
         i += 1
 
     columns = [
-        'irl_obs_id',
-        'timestamp',
+        "timestamp",
 
-        'wind_direction', 
-        'wind_speed', 
-        'gust', 
+        "wind_direction",
+        "wind_speed",
+        "gust",
 
-        'avg_wave_height', 
-        'primary_wave_period', 
-        'avg_wave_period', 
-        'avg_wave_direction', 
-
-        'atmospheric_pressure',
-        'air_temp', 
-        'water_temp', 
-        'dewpoint',
+        "signicant_wave_height",
+        "dominant_wave_period",
+        "average_wave_period",
+        "dominant_wave_direction_origin",
+        
+        "atmospheric_pressure",
+        "air_temp",
+        "water_temp",
         
     ]
 
@@ -160,8 +176,28 @@ def transform_recent_historical_station_data(irl_obs_id: int, before_time: datet
 
 
 
+
+
 def transform_historical_station_data_from_year(raw_data: str):
-    '''transforms raw data into structured dataframes'''
+    '''
+    transforms raw NOAA observations into structured dataframes
+    
+    params:    
+        raw_data: raw text containing historical NOAA measurements from a specific year
+
+    returns:
+        a dataframe containing normalized timestamps, numeric
+        measurements, and missing values represented as NaN
+
+    raises:
+        ValueError: if the input data is empty or malformed
+    
+    '''
+
+
+    if raw_data == "" or raw_data.strip() == "":
+        raise ValueError("Input data is empty or malformed")
+
 
     data = []
     split_data = raw_data.split('\n')
@@ -185,20 +221,20 @@ def transform_historical_station_data_from_year(raw_data: str):
         i += 1
 
     columns = [
-        'timestamp',
+        "timestamp",
 
-        'wind_direction', 
-        'wind_speed', 
-        'gust', 
+        "wind_direction",
+        "wind_speed",
+        "gust",
 
-        'avg_wave_height', 
-        'primary_wave_period', 
-        'avg_wave_period', 
-        'avg_wave_direction', 
+        "signicant_wave_height",
+        "dominant_wave_period",
+        "average_wave_period",
+        "dominant_wave_direction_origin",
 
-        'atmospheric_pressure',
-        'air_temp', 
-        'water_temp'
+        "atmospheric_pressure",
+        "air_temp",
+        "water_temp",
         
     ]
 
@@ -237,13 +273,6 @@ def transform_historical_station_data_from_year(raw_data: str):
     return df
 
 
-
-# if __name__ == "__main__":
-#     print('transform_noaa_data(raw_data)')
-#     rd = extract_noaa_data()
-#     td = transform_noaa_data(rd)
-#     print(td)
-#     print()
 
 
 

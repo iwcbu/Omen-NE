@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyc
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Generated datasets
+*.parquet
+*.csv
+*.feather
+
+# Raw NOAA data
+backend/data/raw/
+
+# Machine learning artifacts
+*.pkl
+*.joblib
+*.h5
+*.pt
+*.pth
+
+# Jupyter notebooks
+.ipynb_checkpoints/
+
+# macOS
+.DS_Store
+
+# IDEs
+.idea/
+.vscode/
+
+# Logs
+*.log
+
+# Build files
+dist/
+build/
